@@ -1,0 +1,91 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: ${name}
+  namespace: ${namespace}
+  labels:
+%{ for k, v in vm_labels ~}
+    "${k}": "${v}"
+%{ endfor ~}
+spec:
+  dataVolumeTemplates:
+    - apiVersion: cdi.kubevirt.io/v1beta1
+      kind: DataVolume
+      metadata:
+        name: ${name}
+      spec:
+        sourceRef:
+          kind: DataSource
+          name: ${datasource_name}
+          namespace: ${datasource_namespace}
+        storage:
+          resources:
+            requests:
+              storage: ${disk_size}
+  runStrategy: ${run_strategy}
+  template:
+    metadata:
+      annotations:
+        vm.kubevirt.io/flavor: ${size_profile}
+        vm.kubevirt.io/os: ${datasource_name}
+        vm.kubevirt.io/workload: server
+      labels:
+%{ for k, v in pod_labels ~}
+        "${k}": "${v}"
+%{ endfor ~}
+    spec:
+      architecture: amd64
+      domain:
+        cpu:
+          cores: ${cpu_cores}
+          sockets: ${cpu_sockets}
+          threads: ${cpu_threads}
+        devices:
+          disks:
+            - disk:
+                bus: virtio
+              name: rootdisk
+            - disk:
+                bus: virtio
+              name: cloudinitdisk
+            - disk: {}
+              name: "${service_account_name}-disk"
+          interfaces:
+            - masquerade: {}
+              model: virtio
+              name: default
+          rng: {}
+        features:
+          acpi: {}
+          smm:
+            enabled: true
+        firmware:
+          bootloader:
+            efi: {}
+        machine:
+          type: ${machine_type}
+        memory:
+          guest: ${memory}
+        resources: {}
+      hostname: ${name}
+      networks:
+        - name: default
+          pod: {}
+      terminationGracePeriodSeconds: 180
+      volumes:
+        - dataVolume:
+            name: ${name}
+          name: rootdisk
+        - cloudInitNoCloud:
+            userData: |-
+              #cloud-config
+              user: ${cloud_user}
+              password: ${cloud_user_password}
+              chpasswd: { expire: False }
+              bootcmd:
+                - "mkdir -p /var/run/secrets/kubernetes.io/serviceaccount"
+                - "mount -o,uid=1000 /dev/sda /var/run/secrets/kubernetes.io/serviceaccount"
+          name: cloudinitdisk
+        - name: "${service_account_name}-disk"
+          serviceAccount:
+            serviceAccountName: "${service_account_name}"
