@@ -53,9 +53,10 @@ variable "tfe_organization" {
 variable "project_name" {
   description = "HCP Terraform project name. Managed by the platform team via variable set - do not change."
   type        = string
+  default     = null
 
   validation {
-    condition     = length(trimspace(var.project_name)) > 0
+    condition     = var.project_name != null && length(trimspace(var.project_name)) > 0
     error_message = "project_name must not be empty. This value is supplied by the project-scoped variable set."
   }
 }
