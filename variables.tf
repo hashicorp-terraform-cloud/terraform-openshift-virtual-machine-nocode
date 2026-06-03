@@ -11,7 +11,6 @@ variable "name" {
 variable "os" {
   description = "Guest OS image. Drives the DataSource reference and the default cloud-init user."
   type        = string
-  default     = "rhel9"
 
   validation {
     condition = contains([
@@ -28,7 +27,6 @@ variable "os" {
 variable "size_profile" {
   description = "VM sizing profile. Drives CPU sockets/cores, memory, root disk, and KubeVirt size/flavor labels."
   type        = string
-  default     = "small"
 
   validation {
     condition     = contains(["tiny", "small", "medium", "large"], var.size_profile)
