@@ -66,3 +66,8 @@ variable "vault_kubernetes_backend" {
   type        = string
   default     = "openshift"
 }
+
+variable "openshift_ca_cert_base64" {
+  description = "Base64-encoded PEM CA certificate for the OpenShift API server. Managed by the platform team."
+  type        = string
+}

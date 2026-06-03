@@ -1,7 +1,9 @@
-# host and CA come from KUBE_HOST / KUBE_CLUSTER_CA_CERT_DATA env; the token is
-# minted per run from Vault for the project's namespace-admin service account.
+# host comes from the KUBE_HOST env; the CA is supplied base64-encoded and decoded
+# here; the token is minted per run from Vault for the project's namespace-admin
+# service account.
 provider "kubernetes" {
-  token = ephemeral.vault_kubernetes_service_account_token.ocp.service_account_token
+  cluster_ca_certificate = base64decode(var.openshift_ca_cert_base64)
+  token                  = ephemeral.vault_kubernetes_service_account_token.ocp.service_account_token
 }
 
 # HCP TF Vault dynamic credentials (TFC_VAULT_*); targets the Vault namespace
