@@ -4,8 +4,8 @@ output "vm_name" {
 }
 
 output "vm_namespace" {
-  description = "Namespace the virtual machine was created in."
-  value       = var.namespace
+  description = "Namespace the virtual machine was created in (derived from the HCP TF project name)."
+  value       = local.namespace
 }
 
 output "vm_credentials" {
@@ -37,7 +37,7 @@ output "vm_service_cluster_ips" {
 
 output "vm_service_hostname" {
   description = "In-cluster DNS hostname for SSH access."
-  value       = "${kubernetes_service_v1.ssh.metadata[0].name}.${var.namespace}.svc.cluster.local"
+  value       = "${kubernetes_service_v1.ssh.metadata[0].name}.${local.namespace}.svc.cluster.local"
 }
 
 output "service_account" {

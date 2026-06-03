@@ -1,12 +1,12 @@
 # OpenShift Virtualization VM — No-Code Module
 
-A No-Code Terraform module for HCP Terraform that provisions a RHEL-family virtual machine on OpenShift Virtualization. End users interact with a four-field form; everything else is supplied by a project-scoped variable set.
+A No-Code Terraform module for HCP Terraform that provisions a RHEL-family virtual machine on OpenShift Virtualization. End users interact with a three-field form; everything else is supplied by a project-scoped variable set.
 
 This is the No-Code variant of [`terraform-kubernetes-openshift-virtual-machine-rhel`](../terraform-kubernetes-openshift-virtual-machine-rhel/). The original module remains available for power users who want the full set of knobs.
 
 ## What this module does
 
-Provisions, in the user's OCP project:
+Provisions, in the OCP namespace whose name matches the HCP Terraform project the workspace lives under:
 
 - A `VirtualMachine` (`kubevirt.io/v1`) backed by a DataVolume cloned from a cluster `DataSource`.
 - A `ServiceAccount` mounted into the VM at `/var/run/secrets/kubernetes.io/serviceaccount` so workloads inside the VM can assume an in-cluster identity.
@@ -14,16 +14,17 @@ Provisions, in the user's OCP project:
 
 It also reads the tags on the **HCP Terraform project** the workspace belongs to and mirrors them onto every Kubernetes resource as labels, so platform-team tagging carries through to the infrastructure automatically.
 
-## End-user form (4 fields)
+**Namespace handling.** Rather than asking the user where to deploy, the module derives the OCP namespace from `project_name` (sanitized to a valid DNS-1123 label: lowercased, non-alphanumerics collapsed to hyphens, leading/trailing hyphens stripped, truncated to 63 chars). This couples the HCP Terraform project structure directly to the OCP namespace layout — one project, one namespace — and removes the risk of a user deploying into someone else's project.
+
+## End-user form (3 fields)
 
 | Field | Type | Default | Notes |
 |---|---|---|---|
 | `name` | string | — | DNS-1123 label. Becomes the VM name and hostname. |
-| `namespace` | string | — | OCP project the VM is created in. |
 | `os` | dropdown | `rhel9` | `rhel8`, `rhel9`, `centos-stream9`, `centos-stream10`, `fedora`. |
 | `size_profile` | dropdown | `small` | `tiny`, `small`, `medium`, `large`. See sizing below. |
 
-Everything else is hidden — pinned to sensible defaults, derived from the OS or size profile, or supplied by the variable set.
+Everything else is hidden — pinned to sensible defaults, derived from the OS or size profile, derived from the HCP TF project (namespace, mirrored labels), or supplied by the variable set.
 
 ## Size profiles
 
@@ -64,7 +65,7 @@ Before publishing this module as No-Code, create a **project-scoped variable set
 | Name | Value |
 |---|---|
 | `tfe_organization` | The HCP Terraform organization name. |
-| `tfe_project_name` | The HCP Terraform project name. Must match the project the variable set is attached to. |
+| `project_name` | The HCP Terraform project name. Must match the project the variable set is attached to. Also drives the OCP namespace the VM is deployed into (sanitized to a DNS-1123 label). |
 
 Both Terraform variables will appear on the no-code form pre-filled by the variable set; their descriptions instruct users not to change them.
 

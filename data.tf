@@ -1,4 +1,4 @@
 data "tfe_project" "current" {
-  name         = var.tfe_project_name
+  name         = var.project_name
   organization = var.tfe_organization
 }

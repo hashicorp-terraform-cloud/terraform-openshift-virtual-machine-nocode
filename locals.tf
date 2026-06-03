@@ -39,6 +39,14 @@ locals {
   sa_name     = "${var.name}-sa"
   vm_password = random_password.vm_password.result
 
+  # Derive the OCP namespace from the HCP TF project name. Sanitize to a valid
+  # DNS-1123 label: lowercase, non-alphanumerics collapsed to hyphens, leading
+  # and trailing hyphens stripped, truncated to 63 chars.
+  namespace = trim(substr(
+    trim(replace(lower(var.project_name), "/[^a-z0-9-]/", "-"), "-"),
+    0, 63
+  ), "-")
+
   raw_project_tags = data.tfe_project.current.effective_tags
 
   hcp_labels = {

@@ -8,16 +8,6 @@ variable "name" {
   }
 }
 
-variable "namespace" {
-  description = "OpenShift project the VM will be created in."
-  type        = string
-
-  validation {
-    condition     = can(regex("^[a-z0-9]([-a-z0-9]*[a-z0-9])?$", var.namespace)) && length(var.namespace) <= 63
-    error_message = "Namespace must be a valid DNS-1123 label: lowercase alphanumerics and hyphens, must start and end with an alphanumeric, max 63 chars."
-  }
-}
-
 variable "os" {
   description = "Guest OS image. Drives the DataSource reference and the default cloud-init user."
   type        = string
@@ -60,12 +50,12 @@ variable "tfe_organization" {
   }
 }
 
-variable "tfe_project_name" {
+variable "project_name" {
   description = "HCP Terraform project name. Managed by the platform team via variable set - do not change."
   type        = string
 
   validation {
-    condition     = length(trimspace(var.tfe_project_name)) > 0
-    error_message = "tfe_project_name must not be empty. This value is supplied by the project-scoped variable set."
+    condition     = length(trimspace(var.project_name)) > 0
+    error_message = "project_name must not be empty. This value is supplied by the project-scoped variable set."
   }
 }

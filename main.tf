@@ -12,7 +12,7 @@ resource "random_uuid" "vm_uuid" {}
 resource "kubernetes_service_account_v1" "vm" {
   metadata {
     name      = local.sa_name
-    namespace = var.namespace
+    namespace = local.namespace
     labels    = local.hcp_labels
   }
 }
@@ -20,7 +20,7 @@ resource "kubernetes_service_account_v1" "vm" {
 resource "kubernetes_service_v1" "ssh" {
   metadata {
     name      = "${var.name}-vm-internal"
-    namespace = var.namespace
+    namespace = local.namespace
     labels    = local.hcp_labels
   }
 
@@ -39,7 +39,7 @@ resource "kubernetes_service_v1" "ssh" {
 resource "kubernetes_manifest" "vm" {
   manifest = yamldecode(templatefile("${path.module}/templates/rhel.yaml.tftpl", {
     name      = var.name
-    namespace = var.namespace
+    namespace = local.namespace
 
     vm_labels  = local.vm_labels
     pod_labels = local.pod_labels
