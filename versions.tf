@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.0"
+  required_version = ">= 1.10.0" # ephemeral resources
 
   required_providers {
     kubernetes = {
@@ -13,6 +13,10 @@ terraform {
     tfe = {
       source  = "hashicorp/tfe"
       version = "~> 0.77"
+    }
+    vault = {
+      source  = "hashicorp/vault"
+      version = "~> 5.9"
     }
   }
 }

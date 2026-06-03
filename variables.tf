@@ -59,3 +59,9 @@ variable "project_name" {
     error_message = "project_name must not be empty. This value is supplied by the project-scoped variable set."
   }
 }
+
+variable "vault_kubernetes_backend" {
+  description = "Vault Kubernetes secrets engine mount path. Managed by the platform team via variable set."
+  type        = string
+  default     = "openshift"
+}
