@@ -56,12 +56,18 @@ resource "kubernetes_manifest" "vm" {
     cloud_user          = local.cloud_user
     cloud_user_password = local.vm_password
 
-    service_account_name = kubernetes_service_account_v1.vm.metadata[0].name
+    service_account_name = local.sa_name
 
     size_profile = var.size_profile
     machine_type = "pc-q35-rhel9.4.0"
     run_strategy = "RerunOnFailure"
   }))
+
+  # kubernetes_manifest requires every field to be known at plan time, so we
+  # reference local.sa_name (a string) rather than the SA resource attribute.
+  # depends_on keeps the create-order: ServiceAccount must exist before the VM
+  # boots and tries to mount its token disk.
+  depends_on = [kubernetes_service_account_v1.vm]
 
   # KubeVirt's admission webhook mutates these on apply; let SSA reconcile them.
   computed_fields = [
